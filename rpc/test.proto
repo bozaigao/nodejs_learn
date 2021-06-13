@@ -1,0 +1,4 @@
+message User {
+    required string name = 1;
+    required string city = 2;
+}
