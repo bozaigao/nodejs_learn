@@ -40,6 +40,9 @@
       $button[key].addEventListener("click", function () {
         fetch("http://" + location.host + "/game?playAction=" + key)
           .then((res) => {
+            if (res.status === 302) {
+              window.location = "https://www.baidu.com";
+            }
             return res.text();
           })
           .then((text) => {
