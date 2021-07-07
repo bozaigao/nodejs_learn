@@ -11,29 +11,28 @@ module.exports = class RPC {
     const tcpServer = net.createServer((socket) => {
       let bufferOld = null;
       socket.on("data", (buffer) => {
-        console.log("收到数据了1", buffer);
         if (bufferOld) {
           buffer = Buffer.concat([bufferOld, buffer]);
         }
         let packageLength = 0;
-
         while ((packageLength = this.isReceiveComplete(buffer))) {
           const packageBuffer = buffer.slice(0, packageLength);
+
           const bodyLength = packageBuffer.readInt32BE(4);
-          const requestBuffer = packageBuffer.slice(8);
-          bufferOld = buffer.slice(bodyLength);
-          const request = this.decodeRequest(requestBuffer);
-          console.log("收到数据了", request);
+          buffer = buffer.slice(bodyLength + 8);
+          const request = this.decodeRequest(packageBuffer);
           callback(
             { body: request.result, socket },
             {
-              end(data) {
-                const buffer = this.encodeResponse(data);
+              end: (data) => {
+                const buffer = this.encodeResponse(data, request.seq);
                 socket.write(buffer);
               },
             }
           );
         }
+
+        bufferOld = buffer;
       });
     });
 

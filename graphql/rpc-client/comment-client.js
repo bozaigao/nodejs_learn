@@ -15,16 +15,16 @@ const easySock = new EasySock({
 
 easySock.encode = function (data, seq) {
   const body = schemas.CommentListRequest.encode(data);
-  console.log("加密", seq, data);
   const head = Buffer.alloc(8);
   head.writeInt32BE(seq);
   head.writeInt32BE(body.length, 4);
+
+  const buffer = Buffer.concat([head, body]);
 
   return Buffer.concat([head, body]);
 };
 easySock.decode = function (buffer) {
   const seq = buffer.readInt32BE();
-  console.log("解密", seq);
   const body = schemas.CommentListResponse.decode(buffer.slice(8));
 
   return {

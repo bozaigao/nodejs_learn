@@ -7,8 +7,7 @@ module.exports = function (
   return new RPC({
     decodeRequest(buffer) {
       const seq = buffer.readInt32BE();
-      const bodyLendth = buffer.readInt32BE(4);
-      const result = protobufferRequestSchema.decode(buffer.slice(bodyLendth));
+      const result = protobufferRequestSchema.decode(buffer.slice(8));
       return { seq, result };
     },
     encodeResponse(data, seq) {
@@ -20,7 +19,7 @@ module.exports = function (
     },
     isCompleteRequest(buffer) {
       if (buffer.length < 8) return 0;
-      if (buffer.length > buffer.readInt32BE(4) + 8) {
+      if (buffer.length >= buffer.readInt32BE(4) + 8) {
         return buffer.readInt32BE(4) + 8;
       } else {
         return 0;
